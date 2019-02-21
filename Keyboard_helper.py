@@ -8,9 +8,10 @@ class Keyboard_helper:
     self.left = 0
     self.right = 0
   def key_press(self,symbol):
+    print symbol
     if symbol == 65362 or symbol == 119:
       self.up = 1
-    if symbol == 65364 or symbol == 115:
+    if symbol == 65364 or symbol == 115 or symbol == 32:
       self.down = 1
     if symbol == 65361 or symbol == 97:
       self.left = 1
@@ -19,7 +20,7 @@ class Keyboard_helper:
   def key_release(self,symbol):
     if symbol == 65362 or symbol == 119:
       self.up = 0
-    if symbol == 65364 or symbol == 115:
+    if symbol == 65364 or symbol == 115 or symbol == 32:
       self.down = 0
     if symbol == 65361 or symbol == 97:
       self.left = 0
