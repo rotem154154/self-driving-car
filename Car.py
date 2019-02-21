@@ -18,6 +18,7 @@ class Car:
     self.red = [255, 0, 0]
     self.white = [255, 255, 255]
 
+
   def get_points(self):
     x1_rot = math.pi + self.size_rotation + self.rotation
     x2_rot = math.pi - self.size_rotation + self.rotation
