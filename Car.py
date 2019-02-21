@@ -1,5 +1,6 @@
 import pyglet
 import math
+import Drawing
 
 class Car:
   def __init__(self):
@@ -42,6 +43,10 @@ class Car:
       quad = pyglet.graphics.vertex_list(4, ('v2i', self.get_points()), ('c3B', self.white * 4))
     quad.draw(pyglet.gl.GL_QUADS)
 
+  def draw_ray(self):
+    points = self.get_points()
+    points = [points[0],points[1],0,0]
+    Drawing.draw_line(points,[0,255,0,1])
   def update(self,keys):
     if keys.left == 1:
       self.rotation+=0.07

@@ -56,6 +56,7 @@ def on_draw():
     car.draw()
     label.text = str(car.score)
     label.draw()
+    car.draw_ray()
 
 map = CarMap()
 
