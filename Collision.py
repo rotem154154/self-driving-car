@@ -1,3 +1,5 @@
+import math
+
 class Collision:
   def __init__(self):
     self.colx = 0
@@ -46,6 +48,8 @@ class Collision:
 
     return -1
 
+
+
   def car_line_collision(self,car_points,x1,y1,x2,y2):
     r1 = self.lines_collision(car_points[0],car_points[1],car_points[2],car_points[3],x1,y1,x2,y2)
     r2 = self.lines_collision(car_points[2], car_points[3], car_points[4], car_points[5], x1, y1, x2, y2)
@@ -67,3 +71,8 @@ class Collision:
     if (self.car_line_collision(car_points, car_map.out_map[0], car_map.out_map[1], car_map.out_map[len(car_map.out_map)-2], car_map.out_map[len(car_map.out_map)-1])):
       return True
     return False
+
+
+
+def dis(x1,y1,x2,y2):
+  return math.sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1))

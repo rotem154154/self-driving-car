@@ -1,6 +1,7 @@
 import pyglet
 import math
 import Drawing
+import Collision
 
 class Car:
   def __init__(self):
@@ -43,16 +44,46 @@ class Car:
       quad = pyglet.graphics.vertex_list(4, ('v2i', self.get_points()), ('c3B', self.white * 4))
     quad.draw(pyglet.gl.GL_QUADS)
 
-  def draw_ray(self):
+  def draw_ray(self,in_map,out_map):
     points = self.get_points()
-    points = [points[0],points[1],0,0]
-    Drawing.draw_line(points,[0,255,0,1])
+    smallest_dis, ray_x1, ray_y1, ray_x2, ray_y2 = self.ray_map(True,points[0],points[1],in_map,out_map)
+
+  def ray_map(self,draw_ray,start_x,start_y,in_map,out_map):
+    smallest_dis,smallest_x,smallest_y = 1000.0,0.0,0.0
+    ray_x1,ray_y1,ray_x2,ray_y2 = 100,100,300,300
+    for i in range(len(in_map)/2-1):
+      x,y,dis = self.ray_line(draw_ray, start_x, start_y, in_map[i * 2], in_map[i * 2 + 1], in_map[i * 2 + 2], in_map[i * 2 + 3])
+      if dis != -1 and dis < smallest_dis:
+        smallest_dis,smallest_x,smallest_y = dis,x,y
+        ray_x1, ray_y1, ray_x2, ray_y2 = in_map[i * 2], in_map[i * 2 + 1], in_map[i * 2 + 2], in_map[i * 2 + 3]
+    x,y,dis = self.ray_line(draw_ray, start_x, start_y, in_map[len(in_map)-2], in_map[len(in_map)-1], in_map[0],
+                        in_map[1])
+    if dis != -1 and dis < smallest_dis:
+      smallest_dis, smallest_x, smallest_y = dis, x, y
+      ray_x1, ray_y1, ray_x2, ray_y2 = in_map[i * 2], in_map[i * 2 + 1], in_map[i * 2 + 2], in_map[i * 2 + 3]
+
+
+    if draw_ray and smallest_dis < 500:
+      Drawing.draw_line([0,255,0,1],smallest_x,smallest_y,start_x,start_y)
+    return smallest_dis,ray_x1, ray_y1, ray_x2, ray_y2
+
+  def ray_line(self,draw_ray,start_x,start_y,x1,y1,x2,y2):
+    x, y, dis = raycast(start_x, start_y, self.rotation, x1,y1,x2,y2)
+    if x != -1 and y != -1:
+      if abs(Collision.dis(x1,y1, x, y) + Collision.dis(x, y, x2,y2) - Collision.dis(x1,y1,x2,y2)) < 0.0001:
+        return x,y,dis
+    return -1,-1,-1
   def update(self,keys):
     if keys.left == 1:
-      self.rotation+=0.07
-      # self.car_brake(0.1)
+      if (keys.down == 1):
+        self.rotation += 0.07 * 2
+      else:
+        self.rotation += 0.07
     if keys.right == 1:
-      self.rotation -= 0.07
+      if (keys.down == 1):
+        self.rotation -= 0.07 * 2
+      else:
+        self.rotation -= 0.07
       # self.car_brake(0.1)
     if keys.up == 1:
       self.v += self.speed
@@ -64,3 +95,24 @@ class Car:
 
   def car_brake(self,brake):
     self.v = max(self.v - brake,0)
+
+
+def raycast(xt,yt,alpha,x1,y1,x2,y2):
+  xt = float(xt)
+  yt = float(yt)
+  alpha = float(alpha)
+  x1 = float(x1)
+  y1 = float(y1)
+  x2 = float(x2)
+  y2 = float(y2)
+  m = math.tan(alpha)
+  m2 = (y2-y1)/(x2-x1)
+  x = (m * xt - m2 * x1 + y1 - yt) / (m - m2)
+  y = x * m2 - x2 * m2 + y2
+  d = (xt-x1)*(y2-y1)-(yt-y1)*(x2-x1)
+  a2 = math.atan(m2)
+  ezer = round((alpha-a2+math.pi/2)/(math.pi))%2
+  if (d >= 0 and ezer == 1) or (d < 0 and ezer == 0):
+    return x, y, Collision.dis(x,y,xt,yt)
+  return -1,-1,-1
+

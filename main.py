@@ -40,12 +40,7 @@ def update_frames(dt):
         car.score += 500
         car.last_score += 1
 
-
-
-
-
     car.score -= 1
-
 
 @window.event
 def on_draw():
@@ -56,7 +51,7 @@ def on_draw():
     car.draw()
     label.text = str(car.score)
     label.draw()
-    car.draw_ray()
+    car.draw_ray(map.in_map,map.out_map)
 
 map = CarMap()
 
