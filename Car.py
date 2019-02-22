@@ -46,29 +46,48 @@ class Car:
 
   def draw_ray(self,in_map,out_map):
     points = self.get_points()
-    smallest_dis, ray_x1, ray_y1, ray_x2, ray_y2 = self.ray_map(True,points[0],points[1],in_map,out_map)
+    dists = [0]*12
+    for i in range(6):
+      dists[i] = self.ray_map(True,points[0],points[1],-(i)*math.pi/10,in_map,out_map)
+    for i in range(6):
+      dists[i+6] = self.ray_map(True, points[6], points[7], (i) * math.pi / 10, in_map, out_map)
+    # x1,y1,x2,y2 = 301,400,300,300
+    # Drawing.draw_line([255,255,0,1],x1,y1,x2,y2)
+    # x,y,dis = self.ray_line(points[0],points[1],x1,y1,x2,y2)
+    # if dis != -1:
+    #   Drawing.draw_line([0,255,0,1],points[0],points[1],x,y)
 
-  def ray_map(self,draw_ray,start_x,start_y,in_map,out_map):
+  def ray_map(self,draw_ray,start_x,start_y,alpha,in_map,out_map):
     smallest_dis,smallest_x,smallest_y = 1000.0,0.0,0.0
     ray_x1,ray_y1,ray_x2,ray_y2 = 100,100,300,300
     for i in range(len(in_map)/2-1):
-      x,y,dis = self.ray_line(draw_ray, start_x, start_y, in_map[i * 2], in_map[i * 2 + 1], in_map[i * 2 + 2], in_map[i * 2 + 3])
+      x,y,dis = self.ray_line(start_x, start_y,alpha, in_map[i * 2], in_map[i * 2 + 1], in_map[i * 2 + 2], in_map[i * 2 + 3])
       if dis != -1 and dis < smallest_dis:
         smallest_dis,smallest_x,smallest_y = dis,x,y
         ray_x1, ray_y1, ray_x2, ray_y2 = in_map[i * 2], in_map[i * 2 + 1], in_map[i * 2 + 2], in_map[i * 2 + 3]
-    x,y,dis = self.ray_line(draw_ray, start_x, start_y, in_map[len(in_map)-2], in_map[len(in_map)-1], in_map[0],
+    x,y,dis = self.ray_line(start_x, start_y,alpha, in_map[len(in_map)-2], in_map[len(in_map)-1], in_map[0],
                         in_map[1])
     if dis != -1 and dis < smallest_dis:
       smallest_dis, smallest_x, smallest_y = dis, x, y
       ray_x1, ray_y1, ray_x2, ray_y2 = in_map[i * 2], in_map[i * 2 + 1], in_map[i * 2 + 2], in_map[i * 2 + 3]
 
+    for i in range(len(out_map)/2-1):
+      x,y,dis = self.ray_line(start_x, start_y,alpha, out_map[i * 2], out_map[i * 2 + 1], out_map[i * 2 + 2], out_map[i * 2 + 3])
+      if dis != -1 and dis < smallest_dis:
+        smallest_dis,smallest_x,smallest_y = dis,x,y
+        ray_x1, ray_y1, ray_x2, ray_y2 = out_map[i * 2], out_map[i * 2 + 1], out_map[i * 2 + 2], out_map[i * 2 + 3]
+    x,y,dis = self.ray_line(start_x, start_y,alpha, out_map[len(out_map)-2], out_map[len(out_map)-1], out_map[0],
+                        out_map[1])
+    if dis != -1 and dis < smallest_dis:
+      smallest_dis, smallest_x, smallest_y = dis, x, y
+      ray_x1, ray_y1, ray_x2, ray_y2 = out_map[i * 2], out_map[i * 2 + 1], out_map[i * 2 + 2], out_map[i * 2 + 3]
 
     if draw_ray and smallest_dis < 500:
       Drawing.draw_line([0,255,0,1],smallest_x,smallest_y,start_x,start_y)
-    return smallest_dis,ray_x1, ray_y1, ray_x2, ray_y2
+    return smallest_dis
 
-  def ray_line(self,draw_ray,start_x,start_y,x1,y1,x2,y2):
-    x, y, dis = raycast(start_x, start_y, self.rotation, x1,y1,x2,y2)
+  def ray_line(self,start_x,start_y,alpha,x1,y1,x2,y2):
+    x, y, dis = raycast(start_x, start_y, self.rotation + alpha, x1,y1,x2,y2)
     if x != -1 and y != -1:
       if abs(Collision.dis(x1,y1, x, y) + Collision.dis(x, y, x2,y2) - Collision.dis(x1,y1,x2,y2)) < 0.0001:
         return x,y,dis
@@ -98,6 +117,9 @@ class Car:
 
 
 def raycast(xt,yt,alpha,x1,y1,x2,y2):
+  if x1 > x2:
+    x1,x2 = x2,x1
+    y1,y2 = y2,y1
   xt = float(xt)
   yt = float(yt)
   alpha = float(alpha)

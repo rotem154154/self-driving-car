@@ -1,4 +1,5 @@
 import pyglet
+from pyglet.window import FPSDisplay
 from Car import Car
 from Car_Map import CarMap
 from Collision import Collision
@@ -52,11 +53,15 @@ def on_draw():
     label.text = str(car.score)
     label.draw()
     car.draw_ray(map.in_map,map.out_map)
+    fps_display.draw()
+
+
+fps_display = FPSDisplay(window)
 
 map = CarMap()
 
 car = Car()
 keys = Keyboard_helper()
 collision = Collision()
-pyglet.clock.schedule_interval(update_frames,1/60.0)
+pyglet.clock.schedule_interval(update_frames,1/30.0)
 pyglet.app.run()
