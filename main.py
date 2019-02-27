@@ -4,6 +4,8 @@ from Car import Car
 from Car_Map import CarMap
 from Collision import Collision
 from Keyboard_helper import Keyboard_helper
+from ai import Ai
+from ai_Tests import Net
 import math
 from pyglet.window import mouse
 
@@ -18,7 +20,8 @@ label = pyglet.text.Label(str(0),
 
 @window.event
 def on_mouse_press(x, y, button, modifiers):
-    print 'mouse'
+    # print 'mouse'
+    Net()
 
 @window.event
 def on_key_press(symbol, modifiers):
@@ -52,16 +55,17 @@ def on_draw():
     car.draw()
     label.text = str(car.score)
     label.draw()
-    car.draw_ray(map.in_map,map.out_map)
+    car.rays(ai,net,map.in_map,map.out_map)
     fps_display.draw()
 
 
 fps_display = FPSDisplay(window)
 
 map = CarMap()
-
+ai = Ai()
+net = Net()
 car = Car()
 keys = Keyboard_helper()
 collision = Collision()
-pyglet.clock.schedule_interval(update_frames,1/30.0)
+pyglet.clock.schedule_interval(update_frames,1/24.0)
 pyglet.app.run()

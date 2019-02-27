@@ -2,6 +2,11 @@ import pyglet
 import math
 import Drawing
 import Collision
+import numpy as np
+import torch
+
+
+first_time_bool = True
 
 class Car:
   def __init__(self):
@@ -44,13 +49,21 @@ class Car:
       quad = pyglet.graphics.vertex_list(4, ('v2i', self.get_points()), ('c3B', self.white * 4))
     quad.draw(pyglet.gl.GL_QUADS)
 
-  def draw_ray(self,in_map,out_map):
+  def rays(self,ai,net,in_map,out_map):
     points = self.get_points()
-    dists = [0]*12
+    dists = np.zeros(13)
     for i in range(6):
       dists[i] = self.ray_map(True,points[0],points[1],-(i)*math.pi/10,in_map,out_map)
     for i in range(6):
       dists[i+6] = self.ray_map(True, points[6], points[7], (i) * math.pi / 10, in_map, out_map)
+    dists[12] = self.v
+    fixed = ai.new_input(dists)
+
+
+    if False and first_time_bool:
+      print '*******'
+      f = net.forward(torch.from_numpy(fixed))
+      print f
     # x1,y1,x2,y2 = 301,400,300,300
     # Drawing.draw_line([255,255,0,1],x1,y1,x2,y2)
     # x,y,dis = self.ray_line(points[0],points[1],x1,y1,x2,y2)
