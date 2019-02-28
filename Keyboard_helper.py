@@ -26,3 +26,21 @@ class Keyboard_helper:
       self.left = 0
     if symbol == 65363 or symbol == 100:
       self.right = 0
+
+  def ai_keys(self,ai_prediction):
+    if ai_prediction[0] > 0:
+      self.up = 1
+    else:
+      self.up = 0
+    if ai_prediction[1] > 0:
+      self.down = 1
+    else:
+      self.down = 0
+    if ai_prediction[2] > 0:
+      self.left = 1
+    else:
+      self.left = 0
+    if ai_prediction[3] > 0:
+      self.right = 1
+    else:
+      self.right = 0

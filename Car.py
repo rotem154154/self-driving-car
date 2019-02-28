@@ -6,8 +6,6 @@ import numpy as np
 import torch
 
 
-first_time_bool = True
-
 class Car:
   def __init__(self):
     self.score = 0
@@ -15,7 +13,7 @@ class Car:
     self.red_bool = False
     self.x = 440.0
     self.y = 90.0
-    self.rotation = math.pi/2
+    self.rotation = 0
     self.v = 0.05
     self.speed = 0.05
     self.sizex = 16.0
@@ -49,21 +47,20 @@ class Car:
       quad = pyglet.graphics.vertex_list(4, ('v2i', self.get_points()), ('c3B', self.white * 4))
     quad.draw(pyglet.gl.GL_QUADS)
 
-  def rays(self,ai,net,in_map,out_map):
+  def rays(self,ai,net,in_map,out_map,draw):
     points = self.get_points()
     dists = np.zeros(13)
     for i in range(6):
-      dists[i] = self.ray_map(True,points[0],points[1],-(i)*math.pi/10,in_map,out_map)
+      dists[i] = self.ray_map(draw,points[0],points[1],-(i)*math.pi/10,in_map,out_map)
     for i in range(6):
-      dists[i+6] = self.ray_map(True, points[6], points[7], (i) * math.pi / 10, in_map, out_map)
+      dists[i+6] = self.ray_map(draw, points[6], points[7], (i) * math.pi / 10, in_map, out_map)
     dists[12] = self.v
     fixed = ai.new_input(dists)
 
+    f = net.forward(torch.from_numpy(fixed))
+    return f
 
-    if False and first_time_bool:
-      print '*******'
-      f = net.forward(torch.from_numpy(fixed))
-      print f
+
     # x1,y1,x2,y2 = 301,400,300,300
     # Drawing.draw_line([255,255,0,1],x1,y1,x2,y2)
     # x,y,dis = self.ray_line(points[0],points[1],x1,y1,x2,y2)
@@ -105,6 +102,8 @@ class Car:
       if abs(Collision.dis(x1,y1, x, y) + Collision.dis(x, y, x2,y2) - Collision.dis(x1,y1,x2,y2)) < 0.0001:
         return x,y,dis
     return -1,-1,-1
+
+
   def update(self,keys):
     if keys.left == 1:
       if (keys.down == 1):
@@ -127,6 +126,9 @@ class Car:
 
   def car_brake(self,brake):
     self.v = max(self.v - brake,0)
+
+
+
 
 
 def raycast(xt,yt,alpha,x1,y1,x2,y2):

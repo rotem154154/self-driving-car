@@ -7,6 +7,7 @@ from Keyboard_helper import Keyboard_helper
 from ai import Ai
 from ai_Tests import Net
 import math
+import torch
 from pyglet.window import mouse
 
 red = [255, 0, 0, 0]
@@ -18,10 +19,38 @@ label = pyglet.text.Label(str(0),
                           x=window.width//2, y=window.height//2,
                           anchor_x='center', anchor_y='center')
 
+
+def ai_game(frames, ai, net, in_map, out_map):
+    global car
+    car = Car()
+    for i in range(frames):
+        f = car.rays(ai, net, in_map, out_map, False)
+        keys.ai_keys(f)
+        update_frames(1)
+
+    return car.score
+
+def net_tests(num_nets):
+    global net
+    nets = []
+    for i in range(num_nets):
+        net = Net()
+        net.double()
+        score = ai_game(1000, ai, net, map.in_map, map.out_map)
+        nets.append([score,net])
+        print(i,score)
+    nets.sort(key=lambda tup: tup[0])
+    nets.reverse()
+    torch.save(nets[0][1].state_dict(), 'models/'+str(nets[0][0])+'.txt')
+
+
+
+
 @window.event
 def on_mouse_press(x, y, button, modifiers):
-    # print 'mouse'
-    Net()
+    # print(net.forward(torch.zeros(13)))
+    net_tests(14)
+
 
 @window.event
 def on_key_press(symbol, modifiers):
@@ -55,7 +84,9 @@ def on_draw():
     car.draw()
     label.text = str(car.score)
     label.draw()
-    car.rays(ai,net,map.in_map,map.out_map)
+    f = car.rays(ai,net,map.in_map,map.out_map,False)
+    keys.ai_keys(f)
+    print f
     fps_display.draw()
 
 
@@ -64,8 +95,12 @@ fps_display = FPSDisplay(window)
 map = CarMap()
 ai = Ai()
 net = Net()
+device = torch.device('cpu')
+net.load_state_dict(torch.load('models/-230.txt', map_location=device))
+net.double()
 car = Car()
 keys = Keyboard_helper()
 collision = Collision()
 pyglet.clock.schedule_interval(update_frames,1/24.0)
 pyglet.app.run()
+

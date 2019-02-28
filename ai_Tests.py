@@ -12,11 +12,13 @@ class Net(nn.Module):
     super(Net, self).__init__()
     self.fc1 = nn.Linear(13, 8)
     self.fc2 = nn.Linear(8, 6)
-    self.fc3 = nn.Linear(6,4)
+    self.out = nn.Linear(6,4)
 
   def forward(self, x):
+
     x = F.relu(self.fc1(x))
     x = F.relu(self.fc2(x))
-    x = self.fc3(x)
-    return F.log_softmax(x, dim=1)
+    x = self.out(x)
+    # return F.log_softmax(x, dim=2)
+    return x
 
