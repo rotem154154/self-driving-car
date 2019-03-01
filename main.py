@@ -16,7 +16,7 @@ import glob, os
 import random
 
 #   change car model
-car_model = 'g1386'
+car_model = 'd2561'
 
 
 glob_frame = 0
@@ -98,7 +98,7 @@ def update_frames(dt):
     car.update(keys)
     if collision.car_map_collision(car.get_points(),map):
         car.red_bool = True
-        car.score -= 1000 + saved_car_count
+        car.score -= 10 + saved_car_count
     else:
         car.red_bool = False
 

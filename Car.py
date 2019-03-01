@@ -17,7 +17,7 @@ class Car:
     #self.x = 570.0
     #self.y = 540.0
 
-    self.rotation = math.pi
+    self.rotation = 0
     self.v = 0.05
     self.speed = 0.05
     self.sizex = 16.0
