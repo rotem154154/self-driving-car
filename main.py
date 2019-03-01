@@ -1,6 +1,6 @@
 #   To play yourself click enter
 #   To train car models click with the mouse
-#   you can move the car with the arrows and brake with space
+#   You can move the car with the arrows and brake with space
 import pyglet
 from pyglet.window import FPSDisplay
 from Car import Car
@@ -48,7 +48,6 @@ def ai_game(frames, ai, net, in_map, out_map):
         best_score = max(car.score,best_score)
 
     return (best_score + car.score)/2
-# 15 1121 1802 1700
 
 def net_tests(num_nets,algo):
     global net
@@ -66,7 +65,8 @@ def net_tests(num_nets,algo):
         score = ai_game(120 + saved_car_count*3, ai, net, map.in_map, map.out_map)
         need_to_save = 1000 + 10 * saved_car_count
         # print score
-        if score > need_to_save:
+        #  you can decide minimum score to save the model
+        if True and score > need_to_save:
             name = 'g' + str(score) + '.txt'
             torch.save(net.state_dict(), name)
             models.append(name)
@@ -82,7 +82,8 @@ def net_tests(num_nets,algo):
 @window.event
 def on_mouse_press(x, y, button, modifiers):
     # print(net.forward(torch.zeros(13)))
-    net_tests(40000,algo=1)
+    net_tests(2,algo=0)
+    net_tests(2,algo=1)
 
 
 @window.event
