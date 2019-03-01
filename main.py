@@ -1,3 +1,6 @@
+#   To play yourself click enter
+#   To train car models click with the mouse
+#   you can move the car with the arrows and brake with space
 import pyglet
 from pyglet.window import FPSDisplay
 from Car import Car
@@ -11,6 +14,10 @@ import torch
 from pyglet.window import mouse
 import glob, os
 import random
+
+#   change car model
+car_model = 'g1386'
+
 
 glob_frame = 0
 saved_car_count = 0
@@ -54,13 +61,13 @@ def net_tests(num_nets,algo):
             m1 = random.choice(models)
             # m1 = models[0]
             net.load_state_dict(torch.load(m1, map_location=device))
-            net.change_weights(random.uniform(0,0.4))
+            net.change_weights(random.uniform(0,1))
         net.double()
-        score = ai_game(170 + saved_car_count*3, ai, net, map.in_map, map.out_map)
-        need_to_save = 1000 + 50 * saved_car_count
+        score = ai_game(120 + saved_car_count*3, ai, net, map.in_map, map.out_map)
+        need_to_save = 1000 + 10 * saved_car_count
         # print score
         if score > need_to_save:
-            name = 'f' + str(score) + '.txt'
+            name = 'g' + str(score) + '.txt'
             torch.save(net.state_dict(), name)
             models.append(name)
             # print score
@@ -80,7 +87,7 @@ def on_mouse_press(x, y, button, modifiers):
 
 @window.event
 def on_key_press(symbol, modifiers):
-    keys.key_press(symbol)
+    keys.key_press(symbol,car)
 
 @window.event
 def on_key_release(symbol, modifiers):
@@ -114,8 +121,9 @@ def on_draw():
     glob_frame+=1
     label2.text = str(glob_frame)
     label2.draw()
-    f = car.rays(ai,net,map.in_map,map.out_map,True)
-    keys.ai_keys(f)
+    if not car.player_play:
+        f = car.rays(ai,net,map.in_map,map.out_map,True)
+        keys.ai_keys(f)
     # print f
     fps_display.draw()
 
@@ -127,7 +135,7 @@ map = CarMap()
 ai = Ai()
 net = Net()
 device = torch.device('cpu')
-net.load_state_dict(torch.load('models/f1802.txt', map_location=device))
+net.load_state_dict(torch.load('models/'+car_model+'.txt', map_location=device))
 net.double()
 car = Car()
 keys = Keyboard_helper()

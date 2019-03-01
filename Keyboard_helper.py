@@ -1,13 +1,12 @@
 
 
-
 class Keyboard_helper:
   def __init__(self):
     self.up = 0
     self.down = 0
     self.left = 0
     self.right = 0
-  def key_press(self,symbol):
+  def key_press(self,symbol,car):
     print symbol
     if symbol == 65362 or symbol == 119:
       self.up = 1
@@ -17,6 +16,12 @@ class Keyboard_helper:
       self.left = 1
     if symbol == 65363 or symbol == 100:
       self.right = 1
+    if symbol == 65293:
+      if car.player_play:
+        car.player_play = False
+      else:
+        car.player_play = True
+
   def key_release(self,symbol):
     if symbol == 65362 or symbol == 119:
       self.up = 0
