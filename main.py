@@ -9,7 +9,11 @@ from ai_Tests import Net
 import math
 import torch
 from pyglet.window import mouse
+import glob, os
+import random
 
+glob_frame = 0
+saved_car_count = 0
 red = [255, 0, 0, 0]
 green = [0, 255, 0, 0]
 window = pyglet.window.Window(width=800,height=600)
@@ -22,26 +26,42 @@ label = pyglet.text.Label(str(0),
 
 def ai_game(frames, ai, net, in_map, out_map):
     global car
+
     car = Car()
+    best_score = 0
     for i in range(frames):
         f = car.rays(ai, net, in_map, out_map, False)
         keys.ai_keys(f)
         update_frames(1)
+        best_score = max(car.score,best_score)
 
-    return car.score
+    return (best_score + car.score)/2
 
-def net_tests(num_nets):
+def net_tests(num_nets,algo):
     global net
-    nets = []
+    global saved_car_count
+    os.chdir("models")
+    models = glob.glob("*.txt")
     for i in range(num_nets):
         net = Net()
+        if algo == 1:
+            m1 = random.choice(models)
+            # m1 = models[0]
+            net.load_state_dict(torch.load(m1, map_location=device))
+            net.change_weights(random.uniform(0,0.4))
         net.double()
-        score = ai_game(1000, ai, net, map.in_map, map.out_map)
-        nets.append([score,net])
-        print(i,score)
-    nets.sort(key=lambda tup: tup[0])
-    nets.reverse()
-    torch.save(nets[0][1].state_dict(), 'models/'+str(nets[0][0])+'.txt')
+        score = ai_game(400, ai, net, map.in_map, map.out_map)
+        need_to_save = 0 + 10 * saved_car_count
+        # print score
+        if score > need_to_save:
+            name = 'f' + str(score) + '.txt'
+            torch.save(net.state_dict(), name)
+            models.append(name)
+            # print score
+            saved_car_count+=1
+            print saved_car_count,i,score,need_to_save
+
+
 
 
 
@@ -49,7 +69,7 @@ def net_tests(num_nets):
 @window.event
 def on_mouse_press(x, y, button, modifiers):
     # print(net.forward(torch.zeros(13)))
-    net_tests(14)
+    net_tests(40000,algo=0)
 
 
 @window.event
@@ -64,7 +84,7 @@ def update_frames(dt):
     car.update(keys)
     if collision.car_map_collision(car.get_points(),map):
         car.red_bool = True
-        car.score -= 10
+        car.score -= 1000 + saved_car_count
     else:
         car.red_bool = False
 
@@ -83,11 +103,15 @@ def on_draw():
     map.draw(score_activate=(car.last_score+1)%8)
     car.draw()
     label.text = str(car.score)
+    # global glob_frame
+    # label.text = str(glob_frame)
+    # glob_frame+=1
     label.draw()
-    f = car.rays(ai,net,map.in_map,map.out_map,False)
+    f = car.rays(ai,net,map.in_map,map.out_map,True)
     keys.ai_keys(f)
-    print f
+    # print f
     fps_display.draw()
+
 
 
 fps_display = FPSDisplay(window)
@@ -96,7 +120,7 @@ map = CarMap()
 ai = Ai()
 net = Net()
 device = torch.device('cpu')
-net.load_state_dict(torch.load('models/-230.txt', map_location=device))
+net.load_state_dict(torch.load('models/f-200.txt', map_location=device))
 net.double()
 car = Car()
 keys = Keyboard_helper()
