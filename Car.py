@@ -12,10 +12,10 @@ class Car:
     self.score = 0
     self.last_score = 7
     self.red_bool = False
-    # self.x = 440.0
-    # self.y = 90.0
-    self.x = 570.0
-    self.y = 540.0
+    self.x = 440.0
+    self.y = 90.0
+    #self.x = 570.0
+    #self.y = 540.0
 
     self.rotation = math.pi
     self.v = 0.05
