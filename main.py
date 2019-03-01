@@ -20,7 +20,12 @@ window = pyglet.window.Window(width=800,height=600)
 label = pyglet.text.Label(str(0),
                           font_name='Times New Roman',
                           font_size=36,
-                          x=window.width//2, y=window.height//2,
+                          x=window.width//2, y=window.height//2 + 30,
+                          anchor_x='center', anchor_y='center')
+label2 = pyglet.text.Label(str(0),
+                          font_name='Times New Roman',
+                          font_size=36,
+                          x=window.width//2, y=window.height//2 - 30,
                           anchor_x='center', anchor_y='center')
 
 
@@ -36,6 +41,7 @@ def ai_game(frames, ai, net, in_map, out_map):
         best_score = max(car.score,best_score)
 
     return (best_score + car.score)/2
+# 15 1121 1802 1700
 
 def net_tests(num_nets,algo):
     global net
@@ -50,8 +56,8 @@ def net_tests(num_nets,algo):
             net.load_state_dict(torch.load(m1, map_location=device))
             net.change_weights(random.uniform(0,0.4))
         net.double()
-        score = ai_game(400, ai, net, map.in_map, map.out_map)
-        need_to_save = 0 + 10 * saved_car_count
+        score = ai_game(170 + saved_car_count*3, ai, net, map.in_map, map.out_map)
+        need_to_save = 1000 + 50 * saved_car_count
         # print score
         if score > need_to_save:
             name = 'f' + str(score) + '.txt'
@@ -69,7 +75,7 @@ def net_tests(num_nets,algo):
 @window.event
 def on_mouse_press(x, y, button, modifiers):
     # print(net.forward(torch.zeros(13)))
-    net_tests(40000,algo=0)
+    net_tests(40000,algo=1)
 
 
 @window.event
@@ -103,10 +109,11 @@ def on_draw():
     map.draw(score_activate=(car.last_score+1)%8)
     car.draw()
     label.text = str(car.score)
-    # global glob_frame
-    # label.text = str(glob_frame)
-    # glob_frame+=1
     label.draw()
+    global glob_frame
+    glob_frame+=1
+    label2.text = str(glob_frame)
+    label2.draw()
     f = car.rays(ai,net,map.in_map,map.out_map,True)
     keys.ai_keys(f)
     # print f
@@ -120,7 +127,7 @@ map = CarMap()
 ai = Ai()
 net = Net()
 device = torch.device('cpu')
-net.load_state_dict(torch.load('models/f-200.txt', map_location=device))
+net.load_state_dict(torch.load('models/f1802.txt', map_location=device))
 net.double()
 car = Car()
 keys = Keyboard_helper()
