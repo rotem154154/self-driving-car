@@ -16,7 +16,7 @@ import glob, os
 import random
 
 #   change car model
-car_model = 'd2561'
+car_model = 'i7437'
 
 
 glob_frame = 0
